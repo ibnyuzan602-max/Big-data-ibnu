@@ -38,7 +38,7 @@ if uploaded_file is not None:
 
     elif menu == "Klasifikasi Gambar":
         # Preprocessing
-        img_resized = img.resize((224, 224))  # sesuaikan ukuran dengan model kamu
+        img_resized = img.resize((128, 128))  # sesuaikan ukuran dengan model kamu
         img_array = image.img_to_array(img_resized)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = img_array / 255.0
