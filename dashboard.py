@@ -139,7 +139,7 @@ if uploaded_file:
 
 if mode == "Deteksi Objek (YOLO)":
     st.info("🚀 Menjalankan deteksi objek...")
-    results = yolo_model(img)
+    results = yolo_model.predict(source=img)
     result_img = results[0].plot()
     st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
 
