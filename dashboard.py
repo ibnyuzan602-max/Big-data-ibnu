@@ -137,7 +137,6 @@ if uploaded_file:
    img = Image.open(uploaded_file)
    st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
 
-```
 if mode == "Deteksi Objek (YOLO)":
     st.info("🚀 Menjalankan deteksi objek...")
     results = yolo_model(img)
@@ -170,4 +169,3 @@ elif mode == "Klasifikasi Gambar":
         </div>
     </div>
     """, unsafe_allow_html=True)
-```
