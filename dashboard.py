@@ -100,9 +100,9 @@ lottie_ai = load_lottie_url("[https://assets5.lottiefiles.com/packages/lf20_qp1q
 
 @st.cache_resource
 def load_models():
-yolo_model = YOLO("model/Ibnu Hawari Yuzan_Laporan 4.pt")
-classifier = tf.keras.models.load_model("model/Ibnu Hawari Yuzan_Laporan 2.h5")
-return yolo_model, classifier
+    yolo_model = YOLO("model/Ibnu Hawari Yuzan_Laporan 4.pt")
+    classifier = tf.keras.models.load_model("model/Ibnu Hawari Yuzan_Laporan 2.h5")
+    return yolo_model, classifier
 
 yolo_model, classifier = load_models()
 
@@ -134,8 +134,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ==========================
 
 if uploaded_file:
-img = Image.open(uploaded_file)
-st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
+   img = Image.open(uploaded_file)
+   st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
 
 ```
 if mode == "Deteksi Objek (YOLO)":
