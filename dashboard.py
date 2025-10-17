@@ -134,39 +134,42 @@ st.markdown('</div>', unsafe_allow_html=True)
 # ==========================
 
 if uploaded_file:
-   img = Image.open(uploaded_file)
-   st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
+    img = Image.open(uploaded_file)
+    st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
 
-if mode == "Deteksi Objek (YOLO)":
-    st.info("🚀 Menjalankan deteksi objek...")
-    img_cv2 = np.array(img)
-    results = yolo_model.predict(source=img_cv2)
-    result_img = results[0].plot()
-    st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
+    if mode == "Deteksi Objek (YOLO)":
+        st.info("🚀 Menjalankan deteksi objek...")
+        img_cv2 = np.array(img)
+        results = yolo_model.predict(source=img_cv2)
+        result_img = results[0].plot()
+        st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
 
-    st.markdown("""
-    <div class="result-card">
-        <h3>✅ Deteksi Selesai</h3>
-        <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-elif mode == "Klasifikasi Gambar":
-    st.info("🔍 Menjalankan klasifikasi gambar...")
-    img_resized = img.resize((128, 128))
-    img_array = image.img_to_array(img_resized)
-    img_array = np.expand_dims(img_array, axis=0) / 255.0
-
-    prediction = classifier.predict(img_array)
-    class_index = np.argmax(prediction)
-    confidence = np.max(prediction)
-
-    st.markdown(f"""
-    <div class="result-card">
-        <h3>🧾 Hasil Prediksi</h3>
-        <p><b>Kelas:</b> {class_index}</p>
-        <div class="progress">
-            <div class="progress-bar" style="width:{confidence*100}%;">{confidence:.1%}</div>
+        st.markdown("""
+        <div class="result-card">
+            <h3>✅ Deteksi Selesai</h3>
+            <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
+
+    elif mode == "Klasifikasi Gambar":
+        st.info("🔍 Menjalankan klasifikasi gambar...")
+        img_resized = img.resize((128, 128))
+        img_array = image.img_to_array(img_resized)
+        img_array = np.expand_dims(img_array, axis=0) / 255.0
+
+        prediction = classifier.predict(img_array)
+        class_index = np.argmax(prediction)
+        confidence = np.max(prediction)
+
+        st.markdown(f"""
+        <div class="result-card">
+            <h3>🧾 Hasil Prediksi</h3>
+            <p><b>Kelas:</b> {class_index}</p>
+            <div class="progress">
+                <div class="progress-bar" style="width:{confidence*100}%;">{confidence:.1%}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+else:
+    st.warning("📂 Silakan unggah gambar terlebih dahulu untuk mulai analisis.")
