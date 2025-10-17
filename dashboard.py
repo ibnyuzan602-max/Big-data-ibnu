@@ -85,10 +85,10 @@ line-height: 20px;
 # ==========================
 
 def load_lottie_url(url):
-r = requests.get(url)
-if r.status_code != 200:
-return None
-return r.json()
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
 
 lottie_ai = load_lottie_url("[https://assets5.lottiefiles.com/packages/lf20_qp1q7mct.json](https://assets5.lottiefiles.com/packages/lf20_qp1q7mct.json)")
 
