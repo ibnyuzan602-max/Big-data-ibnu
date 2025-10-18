@@ -110,13 +110,21 @@ h1, h2, h3 {
 # FUNGSI LOAD LOTTIE
 # =========================
 def load_lottie_url(url):
-    r = requests.get(url)
-    if r.status_code != 200:
+    try:
+        r = requests.get(url)
+        if r.status_code == 200:
+            return r.json()
+        else:
+            return None
+    except:
         return None
-    return r.json()
 
 # Animasi utama (AI glow)
 lottie_ai = load_lottie_url("https://lottie.host/bc197d3f-ec64-4aef-bf90-7e6a6d030a12/9bmmFgRFqL.json")
+
+# Jika gagal, gunakan cadangan
+if not lottie_ai:
+    lottie_ai = load_lottie_url("https://lottie.host/7b0b6a4e-8b92-4db9-b1b3-602bd43c3d5e/5cbtUMk9Rz.json")
 
 # Animasi loading biru
 lottie_loading = load_lottie_url("https://lottie.host/6b79f1cb-52e3-40ff-91c0-7d9fa52a6932/b1exxYPDpy.json")
@@ -126,8 +134,8 @@ lottie_loading = load_lottie_url("https://lottie.host/6b79f1cb-52e3-40ff-91c0-7d
 # =========================
 @st.cache_resource
 def load_models():
-    yolo_model = YOLO("model/Ibnu Hawari Yuzan_Laporan 4.pt")
-    classifier = tf.keras.models.load_model("model/Ibnu Hawari Yuzan_Laporan 2.h5")
+    yolo_model = YOLO(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 4.pt"))
+    classifier = tf.keras.models.load_model(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 2.h5"))
     return yolo_model, classifier
 
 yolo_model, classifier = load_models()
@@ -147,8 +155,11 @@ st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
 
 col1, col2 = st.columns([1, 1])
+
+# Path absolut untuk gambar ilustrasi
+image_path = os.path.join(os.path.dirname(__file__), "images", "ai-illustration.png")
+
 with col1:
-    image_path = os.path.join("images", "ai-illustration.png")
     if os.path.exists(image_path):
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
     else:
@@ -179,7 +190,8 @@ if uploaded_file:
     
     # Animasi loading
     with st.spinner("Model sedang memproses gambar..."):
-        st_lottie(lottie_loading, height=120, key="loading_anim")
+        if lottie_loading:
+            st_lottie(lottie_loading, height=120, key="loading_anim")
         time.sleep(1.5)
 
     # MODE 1: YOLO
@@ -250,3 +262,4 @@ if uploaded_file:
 
 else:
     st.markdown("<div class='warning-box'>📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.</div>", unsafe_allow_html=True)
+
