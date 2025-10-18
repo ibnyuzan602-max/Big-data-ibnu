@@ -39,7 +39,6 @@ st.markdown("""
 h1, h2, h3 {
     text-align: center;
     font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.5px;
 }
 .result-card {
     background: rgba(255,255,255,0.05);
@@ -84,6 +83,7 @@ h1, h2, h3 {
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-top: 20px;
     background-color: transparent;
     border-radius: 20px;
     padding: 20px;
@@ -123,7 +123,7 @@ def load_lottie_url(url):
         return None
 
 # =========================
-# PILIHAN ANIMASI (Cocok untuk background gelap)
+# ANIMASI UTAMA & LOADING
 # =========================
 LOTTIE_URLS = {
     "AI Futuristic": "https://assets10.lottiefiles.com/packages/lf20_pwohahvd.json",
@@ -131,9 +131,12 @@ LOTTIE_URLS = {
     "Tech Network": "https://assets10.lottiefiles.com/packages/lf20_zrqthn6o.json"
 }
 
+LOTTIE_LOADING = "https://assets10.lottiefiles.com/packages/lf20_t9gkkhz4.json"  # Robot thinking animation
+
 st.sidebar.header("⚙️ Pengaturan Tampilan")
 selected_anim = st.sidebar.selectbox("Pilih Animasi AI:", list(LOTTIE_URLS.keys()))
 lottie_ai = load_lottie_url(LOTTIE_URLS[selected_anim])
+lottie_loading = load_lottie_url(LOTTIE_LOADING)
 
 # =========================
 # LOAD MODEL YOLO DAN CNN
@@ -160,28 +163,15 @@ st.sidebar.info("💡 Unggah gambar, lalu biarkan AI menganalisis secara otomati
 st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
 
-col1, col2 = st.columns([1, 1])
-
-image_path = os.path.join(os.path.dirname(__file__), "images", "ai-illustration.png")
-
-with col1:
-    if os.path.exists(image_path):
-        st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
-
-with col2:
-    if lottie_ai:
-        st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
-        st_lottie(lottie_ai, height=280, key="ai_anim")
-        st.markdown("</div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div class='warning-box'>⚠️ Animasi AI tidak berhasil dimuat.</div>", unsafe_allow_html=True)
-
-# Warning pindah ke bawah agar tidak menutupi animasi
-if not os.path.exists(image_path):
-    st.markdown(
-        "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
-        unsafe_allow_html=True
-    )
+# =========================
+# ANIMASI DI TENGAH
+# =========================
+if lottie_ai:
+    st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+    st_lottie(lottie_ai, height=300, key="ai_center_anim")
+    st.markdown("</div>", unsafe_allow_html=True)
+else:
+    st.markdown("<div class='warning-box'>⚠️ Animasi AI tidak berhasil dimuat.</div>", unsafe_allow_html=True)
 
 # =========================
 # UPLOAD GAMBAR
@@ -193,8 +183,12 @@ if uploaded_file:
     img = Image.open(uploaded_file)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
 
-    with st.spinner("Model sedang memproses gambar..."):
-        time.sleep(1.5)
+    # Tampilkan animasi loading
+    st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+    st_lottie(lottie_loading, height=180, key="loading_ai")
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center;'>🤖 AI sedang menganalisis gambar...</p>", unsafe_allow_html=True)
+    time.sleep(2)
 
     # MODE 1: YOLO DETECTION
     if mode == "Deteksi Objek (YOLO)":
