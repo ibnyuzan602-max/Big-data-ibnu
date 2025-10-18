@@ -26,29 +26,28 @@ st.set_page_config(
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
-    background: radial-gradient(circle at 10% 20%, #1e1e2f, #2c2c3e 80%);
+    background: radial-gradient(circle at 10% 20%, #0b0b17, #1b1b2a 80%);
     color: #fff;
 }
 [data-testid="stSidebar"] {
-    background: rgba(20, 20, 30, 0.9);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 15, 25, 0.95);
+    backdrop-filter: blur(10px);
     color: white;
     border-right: 1px solid #333;
 }
 [data-testid="stSidebar"] * { color: white !important; }
-
-h1, h2, h3 { 
-    text-align: center; 
-    font-family: 'Poppins', sans-serif; 
+h1, h2, h3 {
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.5px;
 }
-
 .result-card {
     background: rgba(255,255,255,0.05);
     border-radius: 15px;
     padding: 20px;
     margin-top: 20px;
     text-align: center;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.25);
     animation: fadeIn 0.6s ease-in-out;
 }
 .progress-bar {
@@ -64,21 +63,14 @@ h1, h2, h3 {
     text-align: center;
     color: white;
     font-weight: bold;
-    background: linear-gradient(90deg, #06d6a0, #118ab2);
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
 }
-
-/* ==== Efek Fade In ==== */
 @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(15px);}
+    from {opacity: 0; transform: translateY(10px);}
     to {opacity: 1; transform: translateY(0);}
 }
-.fade-in {
-    animation: fadeIn 1s ease-in-out;
-}
-
-/* ==== Tombol ==== */
 .stDownloadButton > button {
-    background-color: #06d6a0 !important;
+    background-color: #00c6ff !important;
     color: white !important;
     border: none;
     border-radius: 10px;
@@ -86,36 +78,30 @@ h1, h2, h3 {
     transition: 0.3s;
 }
 .stDownloadButton > button:hover {
-    background-color: #05b387 !important;
+    background-color: #0072ff !important;
 }
-
-/* ==== Lottie section ==== */
 .lottie-center {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: transparent !important;
+    background-color: transparent;
+    border-radius: 20px;
     padding: 20px;
-    border-radius: 15px;
-    animation: fadeIn 1.2s ease-in-out;
+    box-shadow: 0 0 25px rgba(0, 162, 255, 0.4), 0 0 50px rgba(0, 162, 255, 0.2);
+    transition: all 0.5s ease-in-out;
 }
-[data-testid="stLottie"] canvas {
-    background-color: transparent !important;
+.lottie-center:hover {
+    box-shadow: 0 0 45px rgba(0, 200, 255, 0.6), 0 0 90px rgba(0, 200, 255, 0.3);
+    transform: scale(1.03);
 }
-
-/* ==== Warning ==== */
 .warning-box {
     background-color: rgba(255, 193, 7, 0.1);
     border-left: 5px solid #ffc107;
     color: #ffc107;
     padding: 10px;
     border-radius: 8px;
-    margin-top: 20px;
+    margin-top: 15px;
     text-align: center;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    animation: fadeIn 1s ease-in-out;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -129,8 +115,11 @@ def load_lottie_url(url):
         return None
     return r.json()
 
-# Lottie AI — tema biru neon futuristik
-lottie_ai = load_lottie_url("https://lottie.host/fcf646e8-ef92-4f87-8b3f-489de3a28a19/1sbtbWTfT2.json")
+# Animasi utama (AI glow)
+lottie_ai = load_lottie_url("https://lottie.host/bc197d3f-ec64-4aef-bf90-7e6a6d030a12/9bmmFgRFqL.json")
+
+# Animasi loading biru
+lottie_loading = load_lottie_url("https://lottie.host/6b79f1cb-52e3-40ff-91c0-7d9fa52a6932/b1exxYPDpy.json")
 
 # =========================
 # LOAD MODEL
@@ -152,7 +141,7 @@ st.sidebar.markdown("---")
 st.sidebar.info("💡 Unggah gambar, lalu biarkan AI menganalisis secara otomatis.")
 
 # =========================
-# HEADER + GAMBAR ILUSTRASI
+# HEADER + ANIMASI
 # =========================
 st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
@@ -161,22 +150,23 @@ col1, col2 = st.columns([1, 1])
 with col1:
     image_path = os.path.join("images", "ai-illustration.png")
     if os.path.exists(image_path):
-        st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
-        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.markdown(
-            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan.<br>Pastikan file ada di folder <b>'images/'</b>.</div>",
+            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
             unsafe_allow_html=True
         )
 
 with col2:
     if lottie_ai:
-        st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
+        st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
         st_lottie(lottie_ai, height=280, key="ai_anim")
         st.markdown("</div>", unsafe_allow_html=True)
     else:
-        st.markdown("<div class='warning-box'>🔄 Animasi AI tidak berhasil dimuat.</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='warning-box'>⚠️ Animasi AI tidak berhasil dimuat.</div>",
+            unsafe_allow_html=True
+        )
 
 # =========================
 # UPLOAD GAMBAR
@@ -185,16 +175,12 @@ uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["j
 
 if uploaded_file:
     img = Image.open(uploaded_file)
-    st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
     
-    progress_bar = st.progress(0)
-    for i in range(0, 101, 5):
-        time.sleep(0.03)
-        progress_bar.progress(i)
-    time.sleep(0.2)
-    progress_bar.empty()
+    # Animasi loading
+    with st.spinner("Model sedang memproses gambar..."):
+        st_lottie(lottie_loading, height=120, key="loading_anim")
+        time.sleep(1.5)
 
     # MODE 1: YOLO
     if mode == "Deteksi Objek (YOLO)":
@@ -216,7 +202,7 @@ if uploaded_file:
         )
 
         st.markdown("""
-        <div class="result-card fade-in">
+        <div class="result-card">
             <h3>✅ Deteksi Selesai</h3>
             <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
         </div>
@@ -234,7 +220,7 @@ if uploaded_file:
         confidence = np.max(prediction)
 
         st.markdown(f"""
-        <div class="result-card fade-in">
+        <div class="result-card">
             <h3>🧾 Hasil Prediksi</h3>
             <p><b>Kelas:</b> {class_index}</p>
             <div class="progress-bar">
@@ -255,7 +241,7 @@ if uploaded_file:
     elif mode == "AI Insight":
         st.info("🔍 Mode Insight Aktif — AI menganalisis konten gambar.")
         st.markdown("""
-        <div class="result-card fade-in">
+        <div class="result-card">
             <h3>💬 Insight Otomatis</h3>
             <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.
             Analisis ini cocok untuk memahami citra sebelum pelatihan model lanjutan.</p>
@@ -263,6 +249,4 @@ if uploaded_file:
         """, unsafe_allow_html=True)
 
 else:
-    st.warning("📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.")
-
-
+    st.markdown("<div class='warning-box'>📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.</div>", unsafe_allow_html=True)
