@@ -129,8 +129,8 @@ def load_lottie_url(url):
         return None
     return r.json()
 
-# Animasi Lottie
-lottie_ai = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_qp1q7mct.json")
+# Lottie AI — tema biru neon futuristik
+lottie_ai = load_lottie_url("https://lottie.host/fcf646e8-ef92-4f87-8b3f-489de3a28a19/1sbtbWTfT2.json")
 
 # =========================
 # LOAD MODEL
@@ -264,4 +264,5 @@ if uploaded_file:
 
 else:
     st.warning("📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.")
+
 
