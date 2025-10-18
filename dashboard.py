@@ -21,7 +21,7 @@ st.set_page_config(
 )
 
 # =========================
-# CSS KUSTOM + ANIMASI
+# CSS KUSTOM
 # =========================
 st.markdown("""
 <style>
@@ -48,7 +48,6 @@ h1, h2, h3 {
     margin-top: 20px;
     text-align: center;
     box-shadow: 0 4px 25px rgba(0,0,0,0.25);
-    animation: fadeIn 0.6s ease-in-out;
 }
 .progress-bar {
     width: 100%;
@@ -65,35 +64,6 @@ h1, h2, h3 {
     font-weight: bold;
     background: linear-gradient(90deg, #00c6ff, #0072ff);
 }
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-}
-.stDownloadButton > button {
-    background-color: #00c6ff !important;
-    color: white !important;
-    border: none;
-    border-radius: 10px;
-    padding: 0.6rem 1.2rem;
-    transition: 0.3s;
-}
-.stDownloadButton > button:hover {
-    background-color: #0072ff !important;
-}
-.lottie-center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: transparent;
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: 0 0 25px rgba(0, 162, 255, 0.4), 0 0 50px rgba(0, 162, 255, 0.2);
-    transition: all 0.5s ease-in-out;
-}
-.lottie-center:hover {
-    box-shadow: 0 0 45px rgba(0, 200, 255, 0.6), 0 0 90px rgba(0, 200, 255, 0.3);
-    transform: scale(1.03);
-}
 .warning-box {
     background-color: rgba(255, 193, 7, 0.1);
     border-left: 5px solid #ffc107;
@@ -103,11 +73,16 @@ h1, h2, h3 {
     margin-top: 15px;
     text-align: center;
 }
+.lottie-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# FUNGSI LOAD LOTTIE
+# FUNGSI LOAD LOTTIE (AMAN)
 # =========================
 def load_lottie_url(url):
     try:
@@ -119,15 +94,9 @@ def load_lottie_url(url):
     except:
         return None
 
-# Animasi utama (AI glow)
-lottie_ai = load_lottie_url("https://lottie.host/bc197d3f-ec64-4aef-bf90-7e6a6d030a12/9bmmFgRFqL.json")
-
-# Jika gagal, gunakan cadangan
-if not lottie_ai:
-    lottie_ai = load_lottie_url("https://lottie.host/7b0b6a4e-8b92-4db9-b1b3-602bd43c3d5e/5cbtUMk9Rz.json")
-
-# Animasi loading biru
-lottie_loading = load_lottie_url("https://lottie.host/6b79f1cb-52e3-40ff-91c0-7d9fa52a6932/b1exxYPDpy.json")
+# Gunakan link Lottie yang aktif
+lottie_ai = load_lottie_url("https://assets10.lottiefiles.com/packages/lf20_tZzY3D.json")
+lottie_loading = load_lottie_url("https://assets1.lottiefiles.com/packages/lf20_qp1q7mct.json")
 
 # =========================
 # LOAD MODEL
@@ -156,15 +125,15 @@ st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
 
 col1, col2 = st.columns([1, 1])
 
-# Path absolut untuk gambar ilustrasi
-image_path = os.path.join(os.path.dirname(__file__), "images", "ai-illustration.png")
+# Pastikan path gambar benar
+image_path = os.path.join("images", "ai-illustration.png")
 
 with col1:
     if os.path.exists(image_path):
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
     else:
         st.markdown(
-            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
+            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Letakkan file <b>ai-illustration.png</b> di folder <b>images/</b>.</div>",
             unsafe_allow_html=True
         )
 
@@ -187,12 +156,11 @@ uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["j
 if uploaded_file:
     img = Image.open(uploaded_file)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
-    
-    # Animasi loading
+
     with st.spinner("Model sedang memproses gambar..."):
         if lottie_loading:
             st_lottie(lottie_loading, height=120, key="loading_anim")
-        time.sleep(1.5)
+        time.sleep(1.2)
 
     # MODE 1: YOLO
     if mode == "Deteksi Objek (YOLO)":
@@ -212,13 +180,6 @@ if uploaded_file:
             file_name="hasil_deteksi_yolo.png",
             mime="image/png"
         )
-
-        st.markdown("""
-        <div class="result-card">
-            <h3>✅ Deteksi Selesai</h3>
-            <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
-        </div>
-        """, unsafe_allow_html=True)
 
     # MODE 2: KLASIFIKASI
     elif mode == "Klasifikasi Gambar":
@@ -241,25 +202,14 @@ if uploaded_file:
         </div>
         """, unsafe_allow_html=True)
 
-        hasil_txt = f"Kelas: {class_index}\nProbabilitas: {confidence:.2f}"
-        st.download_button(
-            label="📥 Download Hasil Klasifikasi",
-            data=hasil_txt,
-            file_name="hasil_klasifikasi.txt",
-            mime="text/plain"
-        )
-
     # MODE 3: INSIGHT
     elif mode == "AI Insight":
         st.info("🔍 Mode Insight Aktif — AI menganalisis konten gambar.")
         st.markdown("""
         <div class="result-card">
             <h3>💬 Insight Otomatis</h3>
-            <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.
-            Analisis ini cocok untuk memahami citra sebelum pelatihan model lanjutan.</p>
+            <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.</p>
         </div>
         """, unsafe_allow_html=True)
-
 else:
     st.markdown("<div class='warning-box'>📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.</div>", unsafe_allow_html=True)
-
