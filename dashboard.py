@@ -77,6 +77,23 @@ h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
 .stDownloadButton > button:hover {
     background-color: #05b387 !important;
 }
+.lottie-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #1e1e2f; /* warna background sesuai tema */
+    border-radius: 15px;
+    padding: 20px;
+}
+.warning-box {
+    background-color: rgba(255, 193, 7, 0.1);
+    border-left: 5px solid #ffc107;
+    color: #ffc107;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -123,11 +140,17 @@ with col1:
     if os.path.exists(image_path):
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
     else:
-        st.warning("⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder 'images/'.")
+        st.markdown(
+            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
+            unsafe_allow_html=True
+        )
 
 with col2:
     if lottie_ai:
-        st_lottie(lottie_ai, height=250, key="ai_anim")
+        with st.container():
+            st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+            st_lottie(lottie_ai, height=250, key="ai_anim")
+            st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.info("🔄 Animasi AI sedang dimuat...")
 
