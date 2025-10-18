@@ -36,7 +36,11 @@ st.markdown("""
     border-right: 1px solid #333;
 }
 [data-testid="stSidebar"] * { color: white !important; }
-h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
+
+h1, h2, h3 { 
+    text-align: center; 
+    font-family: 'Poppins', sans-serif; 
+}
 
 .result-card {
     background: rgba(255,255,255,0.05);
@@ -62,10 +66,17 @@ h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
     font-weight: bold;
     background: linear-gradient(90deg, #06d6a0, #118ab2);
 }
+
+/* ==== Efek Fade In ==== */
 @keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
+    from {opacity: 0; transform: translateY(15px);}
     to {opacity: 1; transform: translateY(0);}
 }
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* ==== Tombol ==== */
 .stDownloadButton > button {
     background-color: #06d6a0 !important;
     color: white !important;
@@ -77,22 +88,34 @@ h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
 .stDownloadButton > button:hover {
     background-color: #05b387 !important;
 }
+
+/* ==== Lottie section ==== */
 .lottie-center {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #1e1e2f; /* warna background sesuai tema */
-    border-radius: 15px;
+    background-color: transparent !important;
     padding: 20px;
+    border-radius: 15px;
+    animation: fadeIn 1.2s ease-in-out;
 }
+[data-testid="stLottie"] canvas {
+    background-color: transparent !important;
+}
+
+/* ==== Warning ==== */
 .warning-box {
     background-color: rgba(255, 193, 7, 0.1);
     border-left: 5px solid #ffc107;
     color: #ffc107;
     padding: 10px;
     border-radius: 8px;
-    margin-top: 15px;
+    margin-top: 20px;
     text-align: center;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeIn 1s ease-in-out;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -138,21 +161,22 @@ col1, col2 = st.columns([1, 1])
 with col1:
     image_path = os.path.join("images", "ai-illustration.png")
     if os.path.exists(image_path):
+        st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
+        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.markdown(
-            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
+            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan.<br>Pastikan file ada di folder <b>'images/'</b>.</div>",
             unsafe_allow_html=True
         )
 
 with col2:
     if lottie_ai:
-        with st.container():
-            st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
-            st_lottie(lottie_ai, height=250, key="ai_anim")
-            st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
+        st_lottie(lottie_ai, height=280, key="ai_anim")
+        st.markdown("</div>", unsafe_allow_html=True)
     else:
-        st.info("🔄 Animasi AI sedang dimuat...")
+        st.markdown("<div class='warning-box'>🔄 Animasi AI tidak berhasil dimuat.</div>", unsafe_allow_html=True)
 
 # =========================
 # UPLOAD GAMBAR
@@ -161,7 +185,9 @@ uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["j
 
 if uploaded_file:
     img = Image.open(uploaded_file)
+    st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
     
     progress_bar = st.progress(0)
     for i in range(0, 101, 5):
@@ -190,7 +216,7 @@ if uploaded_file:
         )
 
         st.markdown("""
-        <div class="result-card">
+        <div class="result-card fade-in">
             <h3>✅ Deteksi Selesai</h3>
             <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
         </div>
@@ -208,7 +234,7 @@ if uploaded_file:
         confidence = np.max(prediction)
 
         st.markdown(f"""
-        <div class="result-card">
+        <div class="result-card fade-in">
             <h3>🧾 Hasil Prediksi</h3>
             <p><b>Kelas:</b> {class_index}</p>
             <div class="progress-bar">
@@ -229,7 +255,7 @@ if uploaded_file:
     elif mode == "AI Insight":
         st.info("🔍 Mode Insight Aktif — AI menganalisis konten gambar.")
         st.markdown("""
-        <div class="result-card">
+        <div class="result-card fade-in">
             <h3>💬 Insight Otomatis</h3>
             <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.
             Analisis ini cocok untuk memahami citra sebelum pelatihan model lanjutan.</p>
