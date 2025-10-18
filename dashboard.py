@@ -9,6 +9,7 @@ import time
 import io
 import os
 from streamlit_lottie import st_lottie
+import json
 
 # =========================
 # KONFIGURASI DASAR
@@ -64,6 +65,17 @@ h1, h2, h3 {
     font-weight: bold;
     background: linear-gradient(90deg, #00c6ff, #0072ff);
 }
+.stDownloadButton > button {
+    background-color: #00c6ff !important;
+    color: white !important;
+    border: none;
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    transition: 0.3s;
+}
+.stDownloadButton > button:hover {
+    background-color: #0072ff !important;
+}
 .warning-box {
     background-color: rgba(255, 193, 7, 0.1);
     border-left: 5px solid #ffc107;
@@ -77,26 +89,57 @@ h1, h2, h3 {
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: transparent;
+    border-radius: 20px;
+    padding: 20px;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# FUNGSI LOAD LOTTIE (AMAN)
+# FUNGSI LOAD LOTTIE (ONLINE + OFFLINE)
 # =========================
-def load_lottie_url(url):
-    try:
-        r = requests.get(url)
-        if r.status_code == 200:
-            return r.json()
-        else:
-            return None
-    except:
-        return None
+def load_lottie(url=None, fallback_url=None, local_path=None):
+    """Coba load animasi dari URL utama, fallback, atau file lokal."""
+    # 1️⃣. Coba URL utama
+    if url:
+        try:
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                return r.json()
+        except:
+            pass
 
-# Gunakan link Lottie yang aktif
-lottie_ai = load_lottie_url("https://assets10.lottiefiles.com/packages/lf20_tZzY3D.json")
-lottie_loading = load_lottie_url("https://assets1.lottiefiles.com/packages/lf20_qp1q7mct.json")
+    # 2️⃣. Coba fallback URL
+    if fallback_url:
+        try:
+            r = requests.get(fallback_url, timeout=5)
+            if r.status_code == 200:
+                return r.json()
+        except:
+            pass
+
+    # 3️⃣. Coba file lokal
+    if local_path and os.path.exists(local_path):
+        with open(local_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    return None
+
+# =========================
+# ANIMASI (ONLINE + OFFLINE)
+# =========================
+lottie_ai = load_lottie(
+    url="https://lottie.host/bc197d3f-ec64-4aef-bf90-7e6a6d030a12/9bmmFgRFqL.json",
+    fallback_url="https://assets5.lottiefiles.com/packages/lf20_qp1q7mct.json",
+    local_path=os.path.join("lottie", "ai.json")
+)
+
+lottie_loading = load_lottie(
+    url="https://lottie.host/6b79f1cb-52e3-40ff-91c0-7d9fa52a6932/b1exxYPDpy.json",
+    fallback_url="https://assets2.lottiefiles.com/packages/lf20_tZzY3D.json",
+    local_path=os.path.join("lottie", "loading.json")
+)
 
 # =========================
 # LOAD MODEL
@@ -124,16 +167,14 @@ st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
 
 col1, col2 = st.columns([1, 1])
-
-# Pastikan path gambar benar
-image_path = os.path.join("images", "ai-illustration.png")
+image_path = os.path.join(os.path.dirname(__file__), "images", "ai-illustration.png")
 
 with col1:
     if os.path.exists(image_path):
         st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
     else:
         st.markdown(
-            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Letakkan file <b>ai-illustration.png</b> di folder <b>images/</b>.</div>",
+            "<div class='warning-box'>⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder <b>'images/'</b>.</div>",
             unsafe_allow_html=True
         )
 
@@ -143,10 +184,7 @@ with col2:
         st_lottie(lottie_ai, height=280, key="ai_anim")
         st.markdown("</div>", unsafe_allow_html=True)
     else:
-        st.markdown(
-            "<div class='warning-box'>⚠️ Animasi AI tidak berhasil dimuat.</div>",
-            unsafe_allow_html=True
-        )
+        st.markdown("<div class='warning-box'>⚠️ Animasi AI tidak berhasil dimuat.</div>", unsafe_allow_html=True)
 
 # =========================
 # UPLOAD GAMBAR
@@ -156,13 +194,12 @@ uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["j
 if uploaded_file:
     img = Image.open(uploaded_file)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
-
+    
     with st.spinner("Model sedang memproses gambar..."):
         if lottie_loading:
             st_lottie(lottie_loading, height=120, key="loading_anim")
-        time.sleep(1.2)
+        time.sleep(1.5)
 
-    # MODE 1: YOLO
     if mode == "Deteksi Objek (YOLO)":
         st.info("🚀 Menjalankan deteksi objek...")
         img_cv2 = np.array(img)
@@ -181,7 +218,13 @@ if uploaded_file:
             mime="image/png"
         )
 
-    # MODE 2: KLASIFIKASI
+        st.markdown("""
+        <div class="result-card">
+            <h3>✅ Deteksi Selesai</h3>
+            <p>Objek berhasil dikenali menggunakan model YOLOv8.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
     elif mode == "Klasifikasi Gambar":
         st.info("🧠 Menjalankan klasifikasi gambar...")
         img_resized = img.resize((128, 128))
@@ -202,14 +245,23 @@ if uploaded_file:
         </div>
         """, unsafe_allow_html=True)
 
-    # MODE 3: INSIGHT
+        hasil_txt = f"Kelas: {class_index}\nProbabilitas: {confidence:.2f}"
+        st.download_button(
+            label="📥 Download Hasil Klasifikasi",
+            data=hasil_txt,
+            file_name="hasil_klasifikasi.txt",
+            mime="text/plain"
+        )
+
     elif mode == "AI Insight":
         st.info("🔍 Mode Insight Aktif — AI menganalisis konten gambar.")
         st.markdown("""
         <div class="result-card">
             <h3>💬 Insight Otomatis</h3>
-            <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.</p>
+            <p>AI mendeteksi karakteristik visual dominan seperti bentuk, warna, dan pola.
+            Analisis ini cocok untuk memahami citra sebelum pelatihan model lanjutan.</p>
         </div>
         """, unsafe_allow_html=True)
+
 else:
     st.markdown("<div class='warning-box'>📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.</div>", unsafe_allow_html=True)
