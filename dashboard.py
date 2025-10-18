@@ -112,7 +112,7 @@ yolo_model, classifier = load_models()
 
 # ==========================
 
-st.markdown('<p class="title">🧠 Image Classification & Object Detection</p>', unsafe_allow_html=True)
+st.markdown('<p class="title">🧠 Klasifikasi Gambar & Deteksi Objek</p>', unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Unggah gambar untuk menganalisis dengan AI pintar</p>', unsafe_allow_html=True)
 st_lottie(lottie_ai, height=180, key="ai")
 
