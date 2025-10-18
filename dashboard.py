@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import time
 import io
+import os
 
 # =========================
 # KONFIGURASI DASAR
@@ -22,30 +23,19 @@ st.set_page_config(
 # =========================
 st.markdown("""
 <style>
-/* Background gradien elegan */
 [data-testid="stAppViewContainer"] {
     background: radial-gradient(circle at 10% 20%, #1e1e2f, #2c2c3e 80%);
     color: #fff;
 }
-
-/* Sidebar */
 [data-testid="stSidebar"] {
     background: rgba(20, 20, 30, 0.9);
     backdrop-filter: blur(8px);
     color: white;
     border-right: 1px solid #333;
 }
-[data-testid="stSidebar"] * {
-    color: white !important;
-}
+[data-testid="stSidebar"] * { color: white !important; }
+h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
 
-/* Header */
-h1, h2, h3 {
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-}
-
-/* Card hasil */
 .result-card {
     background: rgba(255,255,255,0.05);
     border-radius: 15px;
@@ -55,8 +45,6 @@ h1, h2, h3 {
     box-shadow: 0 4px 25px rgba(0,0,0,0.2);
     animation: fadeIn 0.6s ease-in-out;
 }
-
-/* Progress bar */
 .progress-bar {
     width: 100%;
     height: 22px;
@@ -72,14 +60,10 @@ h1, h2, h3 {
     font-weight: bold;
     background: linear-gradient(90deg, #06d6a0, #118ab2);
 }
-
-/* Animasi */
 @keyframes fadeIn {
     from {opacity: 0; transform: translateY(10px);}
     to {opacity: 1; transform: translateY(0);}
 }
-
-/* Tombol download */
 .stDownloadButton > button {
     background-color: #06d6a0 !important;
     color: white !important;
@@ -110,15 +94,21 @@ yolo_model, classifier = load_models()
 # =========================
 st.sidebar.header("⚙️ Mode AI")
 mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar", "AI Insight"])
-
 st.sidebar.markdown("---")
 st.sidebar.info("💡 Unggah gambar, lalu biarkan AI menganalisis secara otomatis.")
 
 # =========================
-# HEADER
+# HEADER + GAMBAR ILUSTRASI
 # =========================
 st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
+
+# tampilkan gambar ilustrasi lokal
+image_path = os.path.join("images", "ai-illustration.png")
+if os.path.exists(image_path):
+    st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
+else:
+    st.warning("⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder 'images/'.")
 
 # =========================
 # UPLOAD GAMBAR
@@ -129,7 +119,6 @@ if uploaded_file:
     img = Image.open(uploaded_file)
     st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
     
-    # Simulasi animasi loading
     progress_bar = st.progress(0)
     for i in range(0, 101, 5):
         time.sleep(0.03)
@@ -137,9 +126,7 @@ if uploaded_file:
     time.sleep(0.2)
     progress_bar.empty()
 
-    # =========================
-    # MODE 1: DETEKSI OBJEK (YOLO)
-    # =========================
+    # MODE 1: YOLO
     if mode == "Deteksi Objek (YOLO)":
         st.info("🚀 Menjalankan deteksi objek...")
         img_cv2 = np.array(img)
@@ -147,7 +134,6 @@ if uploaded_file:
         result_img = results[0].plot()
         st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
 
-        # Download hasil
         img_bytes = io.BytesIO()
         Image.fromarray(result_img).save(img_bytes, format="PNG")
         img_bytes.seek(0)
@@ -166,9 +152,7 @@ if uploaded_file:
         </div>
         """, unsafe_allow_html=True)
 
-    # =========================
-    # MODE 2: KLASIFIKASI GAMBAR
-    # =========================
+    # MODE 2: KLASIFIKASI
     elif mode == "Klasifikasi Gambar":
         st.info("🧠 Menjalankan klasifikasi gambar...")
         img_resized = img.resize((128, 128))
@@ -179,7 +163,6 @@ if uploaded_file:
         class_index = np.argmax(prediction)
         confidence = np.max(prediction)
 
-        # Progress hasil
         st.markdown(f"""
         <div class="result-card">
             <h3>🧾 Hasil Prediksi</h3>
@@ -190,7 +173,6 @@ if uploaded_file:
         </div>
         """, unsafe_allow_html=True)
 
-        # Tombol download hasil prediksi
         hasil_txt = f"Kelas: {class_index}\nProbabilitas: {confidence:.2f}"
         st.download_button(
             label="📥 Download Hasil Klasifikasi",
@@ -199,9 +181,7 @@ if uploaded_file:
             mime="text/plain"
         )
 
-    # =========================
-    # MODE 3: AI INSIGHT
-    # =========================
+    # MODE 3: INSIGHT
     elif mode == "AI Insight":
         st.info("🔍 Mode Insight Aktif — AI menganalisis konten gambar.")
         st.markdown("""
