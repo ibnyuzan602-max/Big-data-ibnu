@@ -4,9 +4,11 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from PIL import Image
+import requests
 import time
 import io
 import os
+from streamlit_lottie import st_lottie
 
 # =========================
 # KONFIGURASI DASAR
@@ -79,6 +81,18 @@ h1, h2, h3 { text-align: center; font-family: 'Poppins', sans-serif; }
 """, unsafe_allow_html=True)
 
 # =========================
+# FUNGSI LOAD LOTTIE
+# =========================
+def load_lottie_url(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+# Animasi Lottie
+lottie_ai = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_qp1q7mct.json")
+
+# =========================
 # LOAD MODEL
 # =========================
 @st.cache_resource
@@ -103,12 +117,19 @@ st.sidebar.info("💡 Unggah gambar, lalu biarkan AI menganalisis secara otomati
 st.title("🤖 AI Vision Pro Dashboard")
 st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
 
-# tampilkan gambar ilustrasi lokal
-image_path = os.path.join("images", "ai-illustration.png")
-if os.path.exists(image_path):
-    st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
-else:
-    st.warning("⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder 'images/'.")
+col1, col2 = st.columns([1, 1])
+with col1:
+    image_path = os.path.join("images", "ai-illustration.png")
+    if os.path.exists(image_path):
+        st.image(image_path, use_container_width=False, width=350, caption="AI Vision System")
+    else:
+        st.warning("⚠️ Gambar ilustrasi tidak ditemukan. Pastikan file ada di folder 'images/'.")
+
+with col2:
+    if lottie_ai:
+        st_lottie(lottie_ai, height=250, key="ai_anim")
+    else:
+        st.info("🔄 Animasi AI sedang dimuat...")
 
 # =========================
 # UPLOAD GAMBAR
@@ -194,3 +215,4 @@ if uploaded_file:
 
 else:
     st.warning("📂 Silakan unggah gambar terlebih dahulu untuk memulai analisis.")
+
