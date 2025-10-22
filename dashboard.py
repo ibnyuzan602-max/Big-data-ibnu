@@ -20,7 +20,7 @@ st.set_page_config(
 )
 
 # =========================
-# CSS FUTURISTIK + FADE EFFECT
+# CSS FUTURISTIK
 # =========================
 st.markdown("""
 <style>
@@ -39,28 +39,30 @@ h1, h2, h3 {
     text-align: center;
     font-family: 'Poppins', sans-serif;
 }
-.result-card {
-    background: rgba(255,255,255,0.05);
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 20px;
-    text-align: center;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.25);
-    animation: fadeIn 1s ease-in-out;
-}
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(10px);}
-    to {opacity: 1; transform: translateY(0);}
-}
 .lottie-center {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 20px;
-    transition: opacity 1s ease-in-out;
+    margin-top: 30px;
 }
-.fade-out {
-    opacity: 0 !important;
+.main-button {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+.stButton>button {
+    border-radius: 12px !important;
+    padding: 0.7rem 1.5rem !important;
+    font-weight: bold !important;
+    border: none !important;
+    color: white !important;
+    background: linear-gradient(90deg, #0072ff, #00c6ff) !important;
+    transition: all 0.3s ease-in-out !important;
+}
+.stButton>button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(0, 198, 255, 0.6);
 }
 .warning-box {
     background-color: rgba(255, 193, 7, 0.1);
@@ -87,110 +89,123 @@ def load_lottie_url(url):
     except:
         return None
 
-# =========================
-# ANIMASI
-# =========================
-LOTTIE_MAIN = "https://assets10.lottiefiles.com/packages/lf20_t24tpvcu.json"  # Cyber Brain
+# Animasi
+LOTTIE_WELCOME = "https://assets10.lottiefiles.com/packages/lf20_t24tpvcu.json"
 LOTTIE_LOADING = "https://assets10.lottiefiles.com/packages/lf20_t9gkkhz4.json"
 LOTTIE_SUCCESS = "https://assets4.lottiefiles.com/packages/lf20_jbrw3hcz.json"
 
-lottie_ai = load_lottie_url(LOTTIE_MAIN)
+lottie_welcome = load_lottie_url(LOTTIE_WELCOME)
 lottie_loading = load_lottie_url(LOTTIE_LOADING)
 lottie_success = load_lottie_url(LOTTIE_SUCCESS)
 
 # =========================
-# LOAD MODEL YOLO DAN CNN
+# SESSION STATE UNTUK HALAMAN
 # =========================
-@st.cache_resource
-def load_models():
-    yolo_model = YOLO(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 4.pt"))
-    classifier = tf.keras.models.load_model(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 2.h5"))
-    return yolo_model, classifier
-
-yolo_model, classifier = load_models()
+if "page" not in st.session_state:
+    st.session_state.page = "landing"
 
 # =========================
-# SIDEBAR
+# HALAMAN 1: LANDING PAGE
 # =========================
-st.sidebar.header("🧠 Mode AI")
-mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-st.sidebar.markdown("---")
+if st.session_state.page == "landing":
+    st.markdown("<h1>🤖 Selamat Datang di <span style='color:#00c6ff;'>AI Vision Pro</span></h1>", unsafe_allow_html=True)
+    st.markdown("<h3>Sistem Deteksi dan Klasifikasi Gambar Cerdas</h3>", unsafe_allow_html=True)
 
-# =========================
-# HEADER
-# =========================
-st.title("🤖 AI Vision Pro Dashboard")
-st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
+    if lottie_welcome:
+        st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+        st_lottie(lottie_welcome, height=300, key="welcome_anim")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-# =========================
-# ANIMASI UTAMA
-# =========================
-if lottie_ai:
-    st.markdown("<div class='lottie-center' id='ai-anim'>", unsafe_allow_html=True)
-    st_lottie(lottie_ai, height=300, key="ai_main")
+    st.markdown("<div class='main-button'>", unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        if st.button("🚀 Masuk ke Website"):
+            st.session_state.page = "main"
+            st.rerun()
+    with col2:
+        if st.button("❌ Tidak / Keluar"):
+            st.stop()
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
-# UPLOAD GAMBAR
+# HALAMAN 2: MAIN WEBSITE (DASHBOARD)
 # =========================
-uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["jpg", "jpeg", "png"])
+elif st.session_state.page == "main":
 
-if uploaded_file:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
+    # Load model YOLO dan CNN
+    @st.cache_resource
+    def load_models():
+        yolo_model = YOLO(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 4.pt"))
+        classifier = tf.keras.models.load_model(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 2.h5"))
+        return yolo_model, classifier
 
-    # LOADING ANIMATION
-    with st.container():
-        anim_spot = st.empty()
-        with anim_spot:
+    yolo_model, classifier = load_models()
+
+    # Sidebar
+    st.sidebar.header("🧠 Mode AI")
+    mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
+    st.sidebar.markdown("---")
+    if st.sidebar.button("⬅️ Kembali ke Halaman Awal"):
+        st.session_state.page = "landing"
+        st.rerun()
+
+    # Header
+    st.title("🤖 AI Vision Pro Dashboard")
+    st.markdown("### Sistem Deteksi dan Klasifikasi Gambar Cerdas")
+
+    # Upload Gambar
+    uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file:
+        img = Image.open(uploaded_file)
+        st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
+
+        with st.container():
+            anim_spot = st.empty()
+            with anim_spot:
+                st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+                st_lottie(lottie_loading, height=180, key="loading_ai")
+                st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown("<p style='text-align:center;'>🤖 AI sedang menganalisis gambar...</p>", unsafe_allow_html=True)
+                st.progress(0)
+                for i in range(100):
+                    time.sleep(0.01)
+                    st.progress(i + 1)
+
+        anim_spot.empty()
+
+        if mode == "Deteksi Objek (YOLO)":
+            img_cv2 = np.array(img)
+            results = yolo_model.predict(source=img_cv2)
+            result_img = results[0].plot()
+
             st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
-            st_lottie(lottie_loading, height=180, key="loading_anim")
+            st_lottie(lottie_success, height=150, key="success_yolo")
             st.markdown("</div>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center;'>🤖 AI sedang menganalisis gambar...</p>", unsafe_allow_html=True)
-            st.progress(0)
-            for i in range(100):
-                time.sleep(0.01)
-                st.progress(i + 1)
 
-    # Setelah loading, kosongkan animasi
-    anim_spot.empty()
+            st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
 
-    # MODE 1: DETEKSI OBJEK
-    if mode == "Deteksi Objek (YOLO)":
-        img_cv2 = np.array(img)
-        results = yolo_model.predict(source=img_cv2)
-        result_img = results[0].plot()
+        elif mode == "Klasifikasi Gambar":
+            img_resized = img.resize((128, 128))
+            img_array = image.img_to_array(img_resized)
+            img_array = np.expand_dims(img_array, axis=0) / 255.0
+            prediction = classifier.predict(img_array)
+            class_index = np.argmax(prediction)
+            confidence = np.max(prediction)
 
-        st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
-        st_lottie(lottie_success, height=150, key="success_ai")
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+            st_lottie(lottie_success, height=150, key="success_class")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
-
-    # MODE 2: KLASIFIKASI
-    elif mode == "Klasifikasi Gambar":
-        img_resized = img.resize((128, 128))
-        img_array = image.img_to_array(img_resized)
-        img_array = np.expand_dims(img_array, axis=0) / 255.0
-        prediction = classifier.predict(img_array)
-        class_index = np.argmax(prediction)
-        confidence = np.max(prediction)
-
-        st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
-        st_lottie(lottie_success, height=150, key="success_ai_class")
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown(f"""
-        <div class="result-card">
-            <h3>🧾 Hasil Klasifikasi</h3>
-            <p><b>Kelas:</b> {class_index}</p>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width:{confidence*100}%;">{confidence:.1%}</div>
+            st.markdown(f"""
+            <div class="result-card">
+                <h3>🧾 Hasil Klasifikasi</h3>
+                <p><b>Kelas:</b> {class_index}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:{confidence*100}%;">{confidence:.1%}</div>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-else:
-    st.markdown(
-        "<div class='warning-box'>📂 Silakan unggah gambar untuk mulai analisis.</div>",
-        unsafe_allow_html=True
-    )
+            """, unsafe_allow_html=True)
+
+    else:
+        st.markdown("<div class='warning-box'>📂 Silakan unggah gambar untuk mulai analisis.</div>", unsafe_allow_html=True)
