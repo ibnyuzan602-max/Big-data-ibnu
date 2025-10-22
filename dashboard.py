@@ -6,44 +6,31 @@ import numpy as np
 from PIL import Image
 import requests
 import time
-import io
-import os
 from streamlit_lottie import st_lottie
 
 # =========================
 # KONFIGURASI DASAR
 # =========================
-st.set_page_config(
-    page_title="AI Vision Pro",
-    page_icon="🤖",
-    layout="wide",
-)
+st.set_page_config(page_title="AI Vision Pro", page_icon="🤖", layout="wide")
 
 # =========================
-# CSS FUTURISTIK
+# CSS STYLING
 # =========================
 st.markdown("""
 <style>
 [data-testid="stAppViewContainer"] {
     background: radial-gradient(circle at 10% 20%, #0b0b17, #1b1b2a 80%);
     color: white;
-    transition: opacity 1s ease-in-out;
 }
-.fade-out {
-    opacity: 0;
-}
-.fade-in {
-    animation: fadeIn 1s ease-in-out;
-}
-@keyframes fadeIn {
-    from {opacity: 0;}
-    to {opacity: 1;}
+h1, h2, h3 {
+    text-align: center !important;
 }
 .lottie-center {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 30px;
+    margin-top: 15px;
+    margin-bottom: 20px;
 }
 .main-button {
     display: flex;
@@ -73,11 +60,37 @@ st.markdown("""
     margin-top: 15px;
     text-align: center;
 }
+
+/* Tombol Musik di kanan bawah */
+.music-toggle {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+    animation: fadeIn 1.5s ease-in-out;
+    transition: transform 0.2s ease-in-out;
+    z-index: 999;
+}
+.music-toggle:hover {
+    transform: scale(1.1);
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 """, unsafe_allow_html=True)
 
 # =========================
-# FUNGSI LOAD LOTTIE
+# FUNGSI LOTTIE
 # =========================
 def load_lottie_url(url):
     try:
@@ -89,42 +102,62 @@ def load_lottie_url(url):
     except:
         return None
 
-# Animasi
+# =========================
+# ANIMASI
+# =========================
 LOTTIE_WELCOME = "https://assets10.lottiefiles.com/packages/lf20_t24tpvcu.json"
-LOTTIE_LOADING = "https://assets10.lottiefiles.com/packages/lf20_t9gkkhz4.json"
-LOTTIE_SUCCESS = "https://assets4.lottiefiles.com/packages/lf20_jbrw3hcz.json"
-LOTTIE_ENTER = "https://assets10.lottiefiles.com/packages/lf20_49rdyysj.json"  # Animasi masuk
+LOTTIE_ENTER = "https://assets10.lottiefiles.com/packages/lf20_49rdyysj.json"
+LOTTIE_DASHBOARD = "https://assets9.lottiefiles.com/private_files/lf30_editor_jchphu0h.json"
 
 lottie_welcome = load_lottie_url(LOTTIE_WELCOME)
-lottie_loading = load_lottie_url(LOTTIE_LOADING)
-lottie_success = load_lottie_url(LOTTIE_SUCCESS)
 lottie_enter = load_lottie_url(LOTTIE_ENTER)
+lottie_dashboard = load_lottie_url(LOTTIE_DASHBOARD)
 
 # =========================
-# SESSION STATE UNTUK HALAMAN
+# SESSION STATE
 # =========================
 if "page" not in st.session_state:
     st.session_state.page = "landing"
+if "music_on" not in st.session_state:
+    st.session_state.music_on = True
 
 # =========================
-# HALAMAN 1: LANDING PAGE
+# MUSIK (autoplay + toggle)
+# =========================
+MUSIC_URL = "https://cdn.pixabay.com/download/audio/2023/04/09/audio_1d2f9e7b7d.mp3?filename=future-vision-ambient-146074.mp3"
+
+if st.session_state.music_on:
+    st.markdown(f"""
+    <audio autoplay loop id="bg-music">
+        <source src="{MUSIC_URL}" type="audio/mp3">
+    </audio>
+    """, unsafe_allow_html=True)
+
+music_icon = "🔇" if not st.session_state.music_on else "🎵"
+music_toggle_html = f"""
+<form action="" method="post">
+    <button class="music-toggle" name="music_toggle" type="submit">{music_icon}</button>
+</form>
+"""
+st.markdown(music_toggle_html, unsafe_allow_html=True)
+
+if "music_toggle" in st.query_params:
+    st.session_state.music_on = not st.session_state.music_on
+    st.query_params.clear()
+    st.rerun()
+
+# =========================
+# HALAMAN LANDING
 # =========================
 if st.session_state.page == "landing":
-    # Judul
-    st.markdown("<h1 class='fade-in'>🤖 Selamat Datang di <span style='color:#00c6ff;'>AI Vision Pro</span></h1>", unsafe_allow_html=True)
+    st.markdown("<h1>🤖 Selamat Datang di <span style='color:#00c6ff;'>AI Vision Pro</span></h1>", unsafe_allow_html=True)
     st.markdown("<h3>Sistem Deteksi dan Klasifikasi Gambar Cerdas</h3>", unsafe_allow_html=True)
 
-    # Musik Latar Futuristik
-    audio_url = "https://cdn.pixabay.com/download/audio/2023/04/09/audio_1d2f9e7b7d.mp3?filename=future-vision-ambient-146074.mp3"
-    st.audio(audio_url, format="audio/mp3", start_time=0)
-
-    # Animasi
     if lottie_welcome:
         st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
         st_lottie(lottie_welcome, height=300, key="welcome_anim")
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Tombol Aksi
     st.markdown("<div class='main-button'>", unsafe_allow_html=True)
     col1, col2 = st.columns([1, 1])
     with col1:
@@ -137,10 +170,10 @@ if st.session_state.page == "landing":
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================
-# HALAMAN TRANSISI MASUK
+# HALAMAN TRANSISI
 # =========================
 elif st.session_state.page == "transition":
-    st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
+    st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
     st_lottie(lottie_enter, height=400, key="enter_anim")
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'>🔄 Memuat Sistem AI Vision Pro...</h3>", unsafe_allow_html=True)
@@ -149,75 +182,17 @@ elif st.session_state.page == "transition":
     st.rerun()
 
 # =========================
-# HALAMAN 2: MAIN DASHBOARD
+# HALAMAN UTAMA
 # =========================
 elif st.session_state.page == "main":
-    @st.cache_resource
-    def load_models():
-        yolo_model = YOLO(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 4.pt"))
-        classifier = tf.keras.models.load_model(os.path.join("model", "Ibnu Hawari Yuzan_Laporan 2.h5"))
-        return yolo_model, classifier
-
-    yolo_model, classifier = load_models()
-
-    st.sidebar.header("🧠 Mode AI")
-    mode = st.sidebar.radio("Pilih Mode:", ["Deteksi Objek (YOLO)", "Klasifikasi Gambar"])
-    st.sidebar.markdown("---")
-    if st.sidebar.button("⬅️ Kembali ke Halaman Awal"):
-        st.session_state.page = "landing"
-        st.rerun()
-
-    # Header
-    st.markdown("<h1 class='fade-in'>🤖 AI Vision Pro Dashboard</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>🤖 AI Vision Pro Dashboard</h1>", unsafe_allow_html=True)
     st.markdown("<h3>Sistem Deteksi dan Klasifikasi Gambar Cerdas</h3>", unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("📤 Unggah Gambar (JPG, JPEG, PNG)", type=["jpg", "jpeg", "png"])
-
-    if uploaded_file:
-        img = Image.open(uploaded_file)
-        st.image(img, caption="🖼️ Gambar yang Diupload", use_container_width=True)
-
-        # Animasi Loading
-        st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
-        st_lottie(lottie_loading, height=180, key="loading_ai")
+    if lottie_dashboard:
+        st.markdown("<div class='lottie-center'>", unsafe_allow_html=True)
+        st_lottie(lottie_dashboard, height=250, key="dashboard_anim")
         st.markdown("</div>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center;'>🤖 AI sedang menganalisis gambar...</p>", unsafe_allow_html=True)
-        st.progress(0)
-        for i in range(100):
-            time.sleep(0.01)
-            st.progress(i + 1)
 
-        if mode == "Deteksi Objek (YOLO)":
-            img_cv2 = np.array(img)
-            results = yolo_model.predict(source=img_cv2)
-            result_img = results[0].plot()
-
-            st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
-            st_lottie(lottie_success, height=150, key="success_yolo")
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            st.image(result_img, caption="🎯 Hasil Deteksi", use_container_width=True)
-
-        elif mode == "Klasifikasi Gambar":
-            img_resized = img.resize((128, 128))
-            img_array = image.img_to_array(img_resized)
-            img_array = np.expand_dims(img_array, axis=0) / 255.0
-            prediction = classifier.predict(img_array)
-            class_index = np.argmax(prediction)
-            confidence = np.max(prediction)
-
-            st.markdown("<div class='lottie-center fade-in'>", unsafe_allow_html=True)
-            st_lottie(lottie_success, height=150, key="success_class")
-            st.markdown("</div>", unsafe_allow_html=True)
-
-            st.markdown(f"""
-            <div class="result-card fade-in">
-                <h3>🧾 Hasil Klasifikasi</h3>
-                <p><b>Kelas:</b> {class_index}</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width:{confidence*100}%;">{confidence:.1%}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.markdown("<div class='warning-box fade-in'>📂 Silakan unggah gambar untuk mulai analisis.</div>", unsafe_allow_html=True)
+    if st.button("⬅️ Kembali ke Halaman Awal"):
+        st.session_state.page = "landing"
+        st.rerun()
